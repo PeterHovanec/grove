@@ -1,208 +1,175 @@
-import { OrdinalTree, OrdinalNode } from "../src/ordinalTree/index";
+const { describe, expect, test, beforeEach } = require("@jest/globals");
+const { OrdinalTree, OrdinalNode } = require("../dist/grove.js");
 
-describe("OrdinalTree", () => {
+describe("OrdinalNode", () => {
+  let root;
+  child1 = new OrdinalNode("child1");
+  child2 = new OrdinalNode("child2");
+  child3 = new OrdinalNode("child3");
+
+  beforeEach(() => {
+    root = new OrdinalNode("root");
+  });
+
+  test("should create a node with a value", () => {
+      expect(root.value).toBe("root");
+      expect(root.children).toEqual([]);
+      expect(root.parent).toBeNull();
+  });
+
+   test("should add child nodes", () => {
+       root.addChild(child1);
+       root.addChild(child2);
+
+       expect(root.children).toContain(child1);
+       expect(root.children).toContain(child2);
+       expect(child1.parent).toBe(root);
+       expect(child2.parent).toBe(root);
+   });
+  
+  test("should remove child nodes", () => {
+      root.addChild(child1);
+      root.addChild(child2);
+      root.removeChild(child1);
+
+      expect(root.children).not.toContain(child1);
+      expect(root.children).toContain(child2);
+      expect(child1.parent).toBeNull();
+  });
+
+  test("should get child at a specific index", () => {
+      root.addChild(child1);
+      root.addChild(child2);
+
+      expect(root.getChildAt(0)).toBe(child1);
+      expect(root.getChildAt(1)).toBe(child2);
+  });
+
+  test("should get the count of children", () => {
+      expect(root.getChildrenCount()).toBe(0);
+      root.addChild(child1);
+      root.addChild(child2);
+      expect(root.getChildrenCount()).toBe(2);
+  });
+
+  test("should find a child by value", () => {
+      root.addChild(child1);
+      root.addChild(child2);
+
+      expect(root.findChild("child1")).toBe(child1);
+      expect(root.findChild("child2")).toBe(child2);
+      expect(root.findChild("child3")).toBeNull();
+  });
+
+  test("should get siblings of a child node", () => {
+      root.addChild(child1);
+      root.addChild(child2);
+      root.addChild(child3);
+
+      expect(child1.getSiblings()).toEqual([child2, child3]);
+      expect(child2.getSiblings()).toEqual([child1, child3]);
+      expect(child3.getSiblings()).toEqual([child1, child2]);
+  });
+
+  test("should return an empty array if node has no parent", () => {
+      expect(root.getSiblings()).toEqual([]);
+  });
+
+})
+
+
+describe('OrdinalTree', () => {
   let tree;
 
   beforeEach(() => {
     tree = new OrdinalTree();
   });
 
-  it("should create a tree with a root node", () => {
-    tree.add("Root");
-    expect(tree.root.value).toBe("Root");
-    expect(tree.root.children.length).toBe(0);
+  test("should add nodes to the tree", () => {
+      tree.add("root");
+      tree.add("child1", "root");
+      tree.add("child2", "root");
+
+      expect(tree.getAllValues()).toEqual(["root", "child1", "child2"]);
   });
 
-  it("should add children to the root node", () => {
-    tree.add("Root");
-    tree.add("Child 1", "Root");
-    tree.add("Child 2", "Root");
+  test("should find nodes by value", () => {
+      tree.add("root");
+      tree.add("child1", "root");
+      tree.add("child2", "root");
 
-    expect(tree.root.children.length).toBe(2);
-    expect(tree.root.children[0].value).toBe("Child 1");
-    expect(tree.root.children[1].value).toBe("Child 2");
+      const node = tree.findNode(tree.root, "child1");
+      expect(node.value).toBe("child1");
   });
 
-  it("should retrieve a child at a specific index", () => {
-    tree.add("Root");
-    tree.add("Child 1", "Root");
-    tree.add("Child 2", "Root");
+  test("should traverse the tree", () => {
+      const callback = jest.fn();
+      tree.add("root");
+      tree.add("child1", "root");
+      tree.add("child2", "root");
 
-    const childAtIndex = tree.root.getChildAt(1);
-    expect(childAtIndex.value).toBe("Child 2");
-  });
-
-  it("should add grandchildren to a child node", () => {
-    tree.add("Root");
-    tree.add("Child 1", "Root");
-    tree.add("Grandchild 1", "Child 1");
-
-    const child1 = tree.root.children[0];
-    expect(child1.children.length).toBe(1);
-    expect(child1.children[0].value).toBe("Grandchild 1");
-  });
-
-  it("should find an existing node by value", () => {
-    tree.add("Root");
-    tree.add("Child 1", "Root");
-    tree.add("Child 2", "Root");
-
-    const foundNode = tree.findNode(tree.root, "Child 1");
-    expect(foundNode).toBeTruthy();
-    expect(foundNode.value).toBe("Child 1");
-  });
-
-  it("should return null for a non-existing node", () => {
-    tree.add("Root");
-    expect(tree.findNode(tree.root, "Non-existing")).toBeNull();
-  });
-
-  it("should traverse the tree and execute a callback on each node", () => {
-    const values = [];
-    tree.add("Root");
-    tree.add("Child 1", "Root");
-    tree.add("Child 2", "Root");
-
-    tree.traverse((node) => values.push(node.value));
-
-    expect(values).toEqual(["Root", "Child 1", "Child 2"]);
-  });
-
-  it("should remove a child node", () => {
-    tree.add("Root");
-    tree.add("Child 1", "Root");
-    tree.add("Child 2", "Root");
-
-    const child1 = tree.root.children[0];
-    expect(tree.root.children.length).toBe(2);
-
-    tree.root.removeChild(child1);
-    expect(tree.root.children.length).toBe(1);
-    expect(tree.root.children[0].value).toBe("Child 2");
-  });
-
-  // Tests for new functions
-
-  it("should remove a node from the tree", () => {
-    tree.add("Root");
-    tree.add("Child 1", "Root");
-    tree.add("Child 2", "Root");
-
-    expect(tree.root.children.length).toBe(2);
-    tree.remove("Child 1");
-    expect(tree.root.children.length).toBe(1);
-    expect(tree.root.children[0].value).toBe("Child 2");
-  });
-
-  it("should set root to null if the root is removed", () => {
-    tree.add("Root");
-    expect(tree.root.value).toBe("Root");
-    tree.remove("Root");
-    expect(tree.root).toBeNull();
-  });
-
-  it("should get the height of the tree", () => {
-    tree.add("Root");
-    tree.add("Child 1", "Root");
-    tree.add("Child 2", "Root");
-    tree.add("Grandchild 1", "Child 1");
-
-    expect(tree.getHeight()).toBe(2); // Height should be 2
-  });
-
-  it("should get all values in the tree", () => {
-    tree.add("Root");
-    tree.add("Child 1", "Root");
-    tree.add("Child 2", "Root");
-
-    const allValues = tree.getAllValues();
-    expect(allValues).toEqual(["Root", "Child 1", "Child 2"]);
-  });
-
-  it("should find a node with a callback", () => {
-    tree.add("Root");
-    tree.add("Child 1", "Root");
-    tree.add("Child 2", "Root");
-
-    const foundNode = tree.findNodeWithCallback(
-      (node) => node.value === "Child 1"
-    );
-    expect(foundNode).toBeTruthy();
-    expect(foundNode.value).toBe("Child 1");
-  });
-});
-
-describe("OrdinalNode", () => {
-  let node;
-
-  beforeEach(() => {
-    node = new OrdinalNode("Test Node");
-  });
-
-  it("should initialize a node with the correct value", () => {
-    expect(node.value).toBe("Test Node");
-    expect(node.children.length).toBe(0);
-    expect(node.parent).toBeNull();
-  });
-
-  it("should add a child node", () => {
-    const childNode = new OrdinalNode("Child Node");
-    node.addChild(childNode);
-
-    expect(node.children.length).toBe(1);
-    expect(node.children[0].value).toBe("Child Node");
-    expect(childNode.parent).toBe(node);
-  });
-
-  it("should remove a child node", () => {
-    const childNode = new OrdinalNode("Child Node");
-    node.addChild(childNode);
-
-    expect(node.children.length).toBe(1);
-    node.removeChild(childNode);
-    expect(node.children.length).toBe(0);
-    expect(childNode.parent).toBeNull();
-  });
-
-  it("should get the number of children", () => {
-    const childNode1 = new OrdinalNode("Child 1");
-    const childNode2 = new OrdinalNode("Child 2");
-    node.addChild(childNode1);
-    node.addChild(childNode2);
-
-    expect(node.getChildrenCount()).toBe(2);
-  });
-
-  it("should find a child by value", () => {
-    const childNode = new OrdinalNode("Child Node");
-    node.addChild(childNode);
-
-    const foundChild = node.findChild("Child Node");
-    expect(foundChild).toBe(childNode);
-  });
-
-  it("should return null when child is not found", () => {
-    const childNode = new OrdinalNode("Child Node");
-    node.addChild(childNode);
-
-    const foundChild = node.findChild("Non-existing Child");
-    expect(foundChild).toBeNull();
-  });
-
-  it("should get siblings", () => {
-    const siblingNode1 = new OrdinalNode("Sibling 1");
-    const siblingNode2 = new OrdinalNode("Sibling 2");
-    const childNode = new OrdinalNode("Child");
-
-    node.addChild(siblingNode1);
-    node.addChild(childNode);
-    node.addChild(siblingNode2);
-
-    const siblings = childNode.getSiblings();
-    expect(siblings.length).toBe(2);
-    expect(siblings).toContain(siblingNode1);
-    expect(siblings).toContain(siblingNode2);
+      tree.traverse(callback);
+      expect(callback).toHaveBeenCalledTimes(3);
+      expect(callback).toHaveBeenCalledWith(
+          expect.objectContaining({ value: "root" })
+      );
   });
 
   
-});
+  test("should remove nodes from the tree", () => {
+      tree.add("root");
+      tree.add("child1", "root");
+      tree.add("child2", "root");
+
+      tree.remove("child1");
+      expect(tree.getAllValues()).toEqual(["root", "child2"]);
+      tree.remove("root");
+      expect(tree.getAllValues()).toEqual(["child2"]);
+  });
+
+  test("should get the height of the tree", () => {
+      tree.add("root");
+      tree.add("child1", "root");
+      tree.add("child2", "root");
+      tree.add("child3", "child1");
+      tree.add("child4", "child1");
+
+      expect(tree.getHeight()).toBe(2); // Max depth is 2 (root -> child1 -> child3 or child4)
+  });
+
+  test("should find a node with a callback", () => {
+      tree.add("root");
+      tree.add("child1", "root");
+      tree.add("child2", "root");
+
+      const node = tree.findNodeWithCallback((node) => node.value === "child2");
+      expect(node.value).toBe("child2");
+  });
+
+  test("should return null when node is not found", () => {
+      tree.add("root");
+      tree.add("child1", "root");
+      tree.add("child2", "root");
+
+      const node = tree.findNode(tree.root, "nonexistent");
+      expect(node).toBeNull();
+  });
+  
+  test("should not add a node when parent is not found", () => {
+      tree.add("root");
+      tree.add("child1", "root");
+
+      // Pokúšame sa pridať uzol k neexistujúcemu rodičovi
+      tree.add("child2", "nonexistent");
+
+      // Uistíme sa, že uzol "child2" neexistuje v strome
+      expect(tree.getAllValues()).toEqual(["root", "child1"]);
+  });
+
+  test("should return -1 when getting the height of a null node", () => {
+      // Ak strom nemá koreň, výška by mala byť -1
+      const height = tree.getHeight();
+      expect(height).toBe(-1);
+  });
+
+})
