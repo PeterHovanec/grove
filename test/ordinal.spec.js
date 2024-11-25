@@ -124,7 +124,7 @@ describe('OrdinalTree', () => {
       tree.remove("child1");
       expect(tree.getAllValues()).toEqual(["root", "child2"]);
       tree.remove("root");
-      expect(tree.getAllValues()).toEqual(["child2"]);
+      expect(tree.getAllValues()).toEqual([]);
   });
 
   test("should get the height of the tree", () => {

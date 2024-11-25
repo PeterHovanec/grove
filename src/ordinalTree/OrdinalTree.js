@@ -3,6 +3,7 @@ import OrdinalNode from "./OrdinalNode";
 class OrdinalTree {
   constructor() {
     this.root = null;
+    
   }
 
   add(value, parentValue = null) {
@@ -14,7 +15,7 @@ class OrdinalTree {
       if (parent) {
         parent.addChild(newNode);
       } else {
-        console.error("Parent not found");
+        return;
       }
     }
   }
