@@ -18,7 +18,7 @@ class OrdinalNode {
      * Adds a child node to the current node, sorted according to a specified pattern.
      * If no pattern is provided, the parent node's global pattern is used.
      * @param {OrdinalNode} childNode - The child node to be added.
-     * @param {string|null} pattern - The pattern to use for sorting the children.
+     * @param {Array|null} pattern - The pattern to use for sorting the children.
      */
     addChild(childNode, pattern = null) {
         childNode.parent = this; // Set the current node as the parent of the child node

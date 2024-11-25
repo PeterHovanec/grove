@@ -8,7 +8,7 @@ import OrdinalNode from "./OrdinalNode";
 class OrdinalTree {
     /**
      * Creates an instance of an OrdinalTree.
-     * @param {string|null} globalPattern - A global pattern to assign to nodes if no specific pattern is provided.
+     * @param {Array|null} globalPattern - A global pattern to assign to nodes if no specific pattern is provided.
      */
     constructor(globalPattern = null) {
         this.root = new OrdinalNode("Root"); // Root node of the tree
@@ -18,7 +18,7 @@ class OrdinalTree {
     /**
      * Adds a word to the tree, creating nodes for each character in the word.
      * @param {string} word - The word to add to the tree.
-     * @param {string|null} pattern - A specific pattern to associate with the nodes for the word.
+     * @param {Array|null} pattern - A specific pattern to associate with the nodes for the word.
      */
     add(word, pattern = null) {
         let currentNode = this.root; // Start from the root node
@@ -50,7 +50,6 @@ class OrdinalTree {
         }
     }
 
-    
     /**
      * Prints the tree structure starting from the root node.
      * This is a visual representation of the tree.
